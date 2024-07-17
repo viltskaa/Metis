@@ -1,7 +1,7 @@
 import flask
 
-from .V1 import example
+from .V1 import V1_API_BLUEPRINT
 
 ROUTES: list[flask.blueprints.Blueprint] = [
-    example,
+    V1_API_BLUEPRINT,
 ]

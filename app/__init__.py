@@ -1,5 +1,3 @@
-import logging
-
 from flask import Flask
 
 from config import DevelopConfig
@@ -24,7 +22,7 @@ def create_app():
         @app.route('/routes')
         def route():
             return pre("<br/>".join(
-                [f"{url.endpoint:20} | {url.rule:20} | {url.methods}" for url in app.url_map.iter_rules()]
+                [f"{url.endpoint:50} | {url.rule:20} | {url.methods}" for url in app.url_map.iter_rules()]
             ))
 
     return app

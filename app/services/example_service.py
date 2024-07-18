@@ -1,34 +1,14 @@
-from flask import current_app
-
 from app.database import Example
-from app.database import database as db
+from app.repositories import ExampleRepository
 
 
 class ExampleService:
-    LAST_ERROR: Exception | None = None
-
     @staticmethod
-    def read_all() -> list[Example] | None:
-        try:
-            database = db.get_database()
-            examples = database.execute('SELECT * FROM example').fetchall()
-            print(examples)
-            examples = list(map(lambda exmpl: Example(*exmpl), examples))
+    def read_all() -> list[Example]:
+        examples = ExampleRepository.read_all()
 
-            return examples
-        except Exception as e:
-            LAST_ERROR = e
-            current_app.logger.error(e)
-            return None
+        return examples if examples is not None else []
 
     @staticmethod
     def insert_example(name: str) -> bool:
-        try:
-            database = db.get_database()
-            database.execute('INSERT INTO example (name) VALUES (?)', (name, ))
-            database.commit()
-            return True
-        except Exception as e:
-            LAST_ERROR = e
-            current_app.logger.error(e)
-            return False
+        return ExampleRepository.insert(name)

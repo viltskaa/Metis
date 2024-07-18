@@ -1,1 +1,1 @@
-import repository
+from .example_repository import *

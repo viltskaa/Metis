@@ -2,7 +2,8 @@ DROP TABLE IF EXISTS additional_part;
 
 CREATE TABLE additional_part (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    time_assembly INTEGER,
+    time_start_assembly INTEGER,
+    time_end_assembly INTEGER,
     article TEXT,
     user_id INTEGER,
     table_id INTEGER,

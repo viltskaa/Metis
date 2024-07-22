@@ -8,7 +8,8 @@ from typing import List
 class Table:
     id: int
     article: str
-    time_assembly: int
+    time_end_assembly: int
+    time_start_assembly: int
     qr_code: str
     table_top: 'TableTop'
     marketplace_id: int

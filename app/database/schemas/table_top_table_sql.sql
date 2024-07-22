@@ -10,7 +10,8 @@ CREATE TABLE table_top (
     color_edge TEXT,
     material TEXT,
     article TEXT UNIQUE,
-    time_assembly INTEGER,
+    time_start_assembly INTEGER,
+    time_end_assembly INTEGER,
     user_id INTEGER,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );

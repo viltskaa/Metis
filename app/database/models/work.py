@@ -8,4 +8,4 @@ class Work:
     id: int
     work_start: int
     work_end: int
-    user: 'User'
+    user_id: int

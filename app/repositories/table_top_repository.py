@@ -9,6 +9,20 @@ class TableTopRepository:
     last_error: Optional[Exception] = None
 
     @staticmethod
+    def read_by_user_id(user_id: int) -> Optional[list[TableTop]]:
+        try:
+            database = db.get_database()
+            tops = database.execute('SELECT * FROM table_top WHERE user_id = ?', (user_id,)).fetchall()
+            print(tops)
+            tops = list(map(lambda tp: TableTop(*tp), tops))
+
+            return tops
+        except Exception as e:
+            TableTopRepository.last_error = e
+            current_app.logger.error(e)
+            return None
+
+    @staticmethod
     def read_by_id(table_top_id: int) -> Optional[TableTop]:
         try:
             database = db.get_database()
@@ -40,7 +54,7 @@ class TableTopRepository:
     def insert(time_start_assembly: int, user_id: int) -> bool:
         try:
             database = db.get_database()
-            database.execute('INSERT INTO table_top (time_start_assembly, user_id) VALUES (?)',
+            database.execute('INSERT INTO table_top (time_start_assembly, user_id) VALUES (?, ?)',
                              (time_start_assembly, user_id,))
             database.commit()
             return True

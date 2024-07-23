@@ -9,6 +9,20 @@ class TableRepository:
     last_error: Optional[Exception] = None
 
     @staticmethod
+    def read_by_user_id(user_id: int) -> Optional[list[Table]]:
+        try:
+            database = db.get_database()
+            tables = database.execute('SELECT * FROM tables WHERE user_id = ?', (user_id,)).fetchall()
+            print(tables)
+            tables = list(map(lambda tbl: Table(*tbl), tables))
+
+            return tables
+        except Exception as e:
+            TableRepository.last_error = e
+            current_app.logger.error(e)
+            return None
+
+    @staticmethod
     def read_by_id(table_id: int) -> Optional[Table]:
         try:
             database = db.get_database()
@@ -40,7 +54,7 @@ class TableRepository:
     def insert(time_start_assembly: int, user_id: int) -> bool:
         try:
             database = db.get_database()
-            database.execute('INSERT INTO tables (time_start_assembly, user_id) VALUES (?)',
+            database.execute('INSERT INTO tables (time_start_assembly, user_id) VALUES (?, ?)',
                              (time_start_assembly, user_id,))
             database.commit()
             return True
@@ -53,7 +67,7 @@ class TableRepository:
     def update(table_id: int, article: str, qr_code: str, table_top_id: int, marketplace_id: int, time_end_assembly: int) -> bool:
         try:
             database = db.get_database()
-            database.execute('UPDATE table_top SET article = ?, qr_code = ?, table_top_id = ?, marketplace_id = ?, '
+            database.execute('UPDATE tables SET article = ?, qr_code = ?, table_top_id = ?, marketplace_id = ?, '
                              'time_end_assembly = ? WHERE id = ?',
                              (article, qr_code, table_top_id,
                               marketplace_id, time_end_assembly,

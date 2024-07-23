@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List
 
 
@@ -8,10 +8,9 @@ from typing import List
 class Table:
     id: int
     article: str
-    time_end_assembly: int
     time_start_assembly: int
+    time_end_assembly: int
     qr_code: str
-    table_top: 'TableTop'
+    table_top_id: int
     marketplace_id: int
-    user: 'User'
-    additional_parts: List['AdditionalPart']
+    user_id: int

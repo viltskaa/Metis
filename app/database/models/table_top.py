@@ -14,6 +14,6 @@ class TableTop:
     color_edge: str
     material: str
     article: str
-    time_end_assembly: int
     time_start_assembly: int
-    user: 'User'
+    time_end_assembly: int
+    user_id: int

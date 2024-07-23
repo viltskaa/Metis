@@ -1,14 +1,8 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List
 
 
-@dataclass(
-    frozen=True
-)
+@dataclass
 class User:
     id: int
     name: str
-    works: List['Work']
-    tables: List['Table']
-    table_tops: List['TableTop']
-    additional_parts: List['AdditionalPart']

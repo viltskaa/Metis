@@ -1,16 +1,18 @@
+from typing import Optional
+
 from app.database import User
 from app.repositories import UserRepository
 
 
 class UserService:
     @staticmethod
-    def read_all() -> list[User]:
+    def read_all() -> Optional[list[User]]:
         users = UserRepository.read_all()
 
         return users if users is not None else []
 
     @staticmethod
-    def get_user(user_id: int) -> User:
+    def get_user(user_id: int) -> Optional[User]:
         return UserRepository.read_by_id(user_id)
 
     @staticmethod

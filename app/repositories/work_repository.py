@@ -14,8 +14,8 @@ class WorkRepository:
             database = db.get_database()
             work_row = database.execute('SELECT * FROM work WHERE id = ?', (work_id,)).fetchone()
             if work_row:
-                user = Work(*work_row)
-                return user
+                work = Work(*work_row)
+                return work
             return None
         except Exception as e:
             WorkRepository.last_error = e
@@ -54,7 +54,7 @@ class WorkRepository:
     def insert(work_start: int, user_id: int) -> bool:
         try:
             database = db.get_database()
-            database.execute('INSERT INTO work (work_start, user_id) VALUES (?)', (work_start, user_id,))
+            database.execute('INSERT INTO work (work_start, user_id) VALUES (?, ?)', (work_start, user_id,))
             database.commit()
             return True
         except Exception as e:

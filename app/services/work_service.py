@@ -1,22 +1,24 @@
+from typing import Optional
+
 from app.database import Work
 from app.repositories import WorkRepository
 
 
 class WorkService:
     @staticmethod
-    def read_all() -> list[Work]:
+    def read_all() -> Optional[list[Work]]:
         works = WorkRepository.read_all()
 
         return works if works is not None else []
 
     @staticmethod
-    def read_all_by_user_id(user_id: int) -> list[Work]:
+    def read_all_by_user_id(user_id: int) -> Optional[list[Work]]:
         works = WorkRepository.read_by_user_id(user_id)
 
         return works if works is not None else []
 
     @staticmethod
-    def get_work(work_id: int) -> Work:
+    def get_work(work_id: int) -> Optional[Work]:
         return WorkRepository.read_by_id(work_id)
 
     @staticmethod

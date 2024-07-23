@@ -9,6 +9,34 @@ class AdditionalPartRepository:
     last_error: Optional[Exception] = None
 
     @staticmethod
+    def read_by_table_id(table_id: int) -> Optional[list[AdditionalPart]]:
+        try:
+            database = db.get_database()
+            parts = database.execute('SELECT * FROM additional_part WHERE table_id = ?', (table_id,)).fetchall()
+            print(parts)
+            parts = list(map(lambda prt: AdditionalPart(*prt), parts))
+
+            return parts
+        except Exception as e:
+            AdditionalPartRepository.last_error = e
+            current_app.logger.error(e)
+            return None
+
+    @staticmethod
+    def read_by_user_id(user_id: int) -> Optional[list[AdditionalPart]]:
+        try:
+            database = db.get_database()
+            parts = database.execute('SELECT * FROM additional_part WHERE user_id = ?', (user_id,)).fetchall()
+            print(parts)
+            parts = list(map(lambda prt: AdditionalPart(*prt), parts))
+
+            return parts
+        except Exception as e:
+            AdditionalPartRepository.last_error = e
+            current_app.logger.error(e)
+            return None
+
+    @staticmethod
     def read_by_id(add_part_id: int) -> Optional[AdditionalPart]:
         try:
             database = db.get_database()
@@ -40,7 +68,7 @@ class AdditionalPartRepository:
     def insert(time_start_assembly: int, user_id: int) -> bool:
         try:
             database = db.get_database()
-            database.execute('INSERT INTO additional_part (time_start_assembly, user_id) VALUES (?)',
+            database.execute('INSERT INTO additional_part (time_start_assembly, user_id) VALUES (?, ?)',
                              (time_start_assembly, user_id,))
             database.commit()
             return True

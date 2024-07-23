@@ -2,6 +2,7 @@ from typing import Optional
 
 from app.database import TableTop
 from app.repositories import TableTopRepository
+from .parse_datetime import parse_datetime
 
 
 class TableTopService:
@@ -31,7 +32,7 @@ class TableTopService:
                    color_edge: str,
                    material: str,
                    article: str,
-                   time_end_assembly: int) -> bool:
+                   time_end_assembly: str) -> bool:
         return TableTopRepository.update(table_top_id,
                                          width,
                                          height,
@@ -41,8 +42,8 @@ class TableTopService:
                                          color_edge,
                                          material,
                                          article,
-                                         time_end_assembly)
+                                         parse_datetime(time_end_assembly))
 
     @staticmethod
-    def insert_top(time_start_assembly: int, user_id: int) -> bool:
-        return TableTopRepository.insert(time_start_assembly, user_id)
+    def insert_top(time_start_assembly: str, user_id: int) -> bool:
+        return TableTopRepository.insert(parse_datetime(time_start_assembly), user_id)

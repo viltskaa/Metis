@@ -2,6 +2,7 @@ from typing import Optional
 
 from app.database import AdditionalPart
 from app.repositories import AdditionalPartRepository
+from .parse_datetime import parse_datetime
 
 
 class AdditionalPartService:
@@ -29,14 +30,14 @@ class AdditionalPartService:
 
     @staticmethod
     def update_part(part_id: int,
-                    time_end_assembly: int,
+                    time_end_assembly: str,
                     article: str,
                     table_id: int) -> bool:
         return AdditionalPartRepository.update(part_id,
-                                               time_end_assembly,
+                                               parse_datetime(time_end_assembly),
                                                article,
                                                table_id)
 
     @staticmethod
-    def insert_part(time_start_assembly: int, user_id: int) -> bool:
-        return AdditionalPartRepository.insert(time_start_assembly, user_id)
+    def insert_part(time_start_assembly: str, user_id: int) -> bool:
+        return AdditionalPartRepository.insert(parse_datetime(time_start_assembly), user_id)

@@ -1,7 +1,10 @@
+import time
+from datetime import datetime
 from typing import Optional
 
 from app.database import Work
 from app.repositories import WorkRepository
+from .parse_datetime import parse_datetime
 
 
 class WorkService:
@@ -22,9 +25,9 @@ class WorkService:
         return WorkRepository.read_by_id(work_id)
 
     @staticmethod
-    def insert_work(work_start: int, user_id: int) -> bool:
-        return WorkRepository.insert(work_start, user_id)
+    def insert_work(work_start: str, user_id: int) -> bool:
+        return WorkRepository.insert(parse_datetime(work_start), user_id)
 
     @staticmethod
-    def update_work(work_end: int, work_id: int) -> bool:
-        return WorkRepository.update(work_id, work_end)
+    def update_work(work_end: str, work_id: int) -> bool:
+        return WorkRepository.update(work_id, parse_datetime(work_end))

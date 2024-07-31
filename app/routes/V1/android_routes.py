@@ -10,6 +10,25 @@ global_scanned_string = ""
 android: flask.blueprints.Blueprint = Blueprint('android', __name__)
 
 
+@android.route('/receive_image', methods=['POST'])
+def receive_image() -> Response:
+    data = request.get_json()
+    try:
+        image = data['string_image']
+    except ValueError as e:
+        return current_app.response_class(
+            response=json.dumps({'error': 'Invalid string'}),
+            status=400,
+            mimetype='application/json'
+        )
+    print(f"Received string: {image}")
+    return current_app.response_class(
+        response=json.dumps({'success': 'Image in base64 successfully receive', 'string': image}),
+        status=200,
+        mimetype='application/json'
+    )
+
+
 @android.route('/receive_string', methods=['POST'])
 def receive_string() -> Response:
     global global_scanned_string

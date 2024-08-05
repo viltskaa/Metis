@@ -1,10 +1,7 @@
-from dataclasses import dataclass, field
-from typing import List
+from dataclasses import dataclass
 
 
-@dataclass(
-    frozen=True
-)
+@dataclass
 class Table:
     id: int
     article: str

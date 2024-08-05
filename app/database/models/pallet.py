@@ -1,9 +1,7 @@
 from dataclasses import dataclass
 
 
-@dataclass(
-    frozen=True
-)
+@dataclass
 class Pallet:
     id: int
     hex_color: str

@@ -2,9 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 
-@dataclass(
-    frozen=True
-)
+@dataclass
 class AdditionalPart:
     id: int
     time_start_assembly: int

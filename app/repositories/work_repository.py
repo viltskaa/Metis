@@ -12,7 +12,7 @@ class WorkRepository:
     def read_by_id(work_id: int) -> Optional[Work]:
         try:
             database = db.get_database()
-            work_row = database.execute('SELECT * FROM work WHERE id = ?', (work_id,)).fetchone()
+            work_row = database.execute('SELECT * FROM works WHERE id = ?', (work_id,)).fetchone()
             if work_row:
                 work = Work(*work_row)
                 return work
@@ -26,7 +26,7 @@ class WorkRepository:
     def read_all() -> Optional[list[Work]]:
         try:
             database = db.get_database()
-            works = database.execute('SELECT * FROM work').fetchall()
+            works = database.execute('SELECT * FROM works').fetchall()
             print(works)
             works = list(map(lambda wrk: Work(*wrk), works))
 
@@ -40,7 +40,7 @@ class WorkRepository:
     def read_by_user_id(user_id: int) -> Optional[list[Work]]:
         try:
             database = db.get_database()
-            works = database.execute('SELECT * FROM work WHERE user_id = ?', (user_id,)).fetchall()
+            works = database.execute('SELECT * FROM works WHERE user_id = ?', (user_id,)).fetchall()
             print(works)
             works = list(map(lambda wrk: Work(*wrk), works))
 
@@ -54,7 +54,7 @@ class WorkRepository:
     def insert(work_start: int, user_id: int) -> bool:
         try:
             database = db.get_database()
-            database.execute('INSERT INTO work (work_start, user_id) VALUES (?, ?)', (work_start, user_id,))
+            database.execute('INSERT INTO works (work_start, user_id) VALUES (?, ?)', (work_start, user_id,))
             database.commit()
             return True
         except Exception as e:
@@ -66,7 +66,7 @@ class WorkRepository:
     def update(work_id: int, work_end: int) -> bool:
         try:
             database = db.get_database()
-            database.execute('UPDATE work SET work_end = ? WHERE id = ?', (work_end, work_id,))
+            database.execute('UPDATE works SET work_end = ? WHERE id = ?', (work_end, work_id,))
             database.commit()
             return True
         except Exception as e:

@@ -12,6 +12,6 @@ CREATE TABLE table_top (
     article TEXT UNIQUE,
     time_start_assembly INTEGER,
     time_end_assembly INTEGER,
-    user_id INTEGER,
+    user_id INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );

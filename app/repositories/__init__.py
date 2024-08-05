@@ -4,3 +4,4 @@ from .table_repository import *
 from .table_top_repository import *
 from .user_repository import *
 from .work_repository import *
+from .pallet_repository import *

@@ -5,3 +5,5 @@ from .models.user import User
 from .models.additional_part import AdditionalPart
 from .models.work import Work
 from .models.pallet import Pallet
+from .models.existing_table import ExistingTable
+from .models.task import Task

@@ -5,3 +5,5 @@ from .user import User
 from .additional_part import AdditionalPart
 from .work import Work
 from .pallet import Pallet
+from .task import Task
+from .existing_table import ExistingTable

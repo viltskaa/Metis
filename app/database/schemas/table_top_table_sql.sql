@@ -6,12 +6,10 @@ CREATE TABLE table_top (
     height REAL,
     perimeter REAL,
     depth REAL,
-    color_main TEXT,
-    color_edge TEXT,
-    material TEXT,
-    article TEXT UNIQUE,
     time_start_assembly INTEGER,
     time_end_assembly INTEGER,
-    user_id INTEGER NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    response INTEGER,
+    image_path TEXT,
+    table_top_pattern_id INTEGER,
+    FOREIGN KEY (table_top_pattern_id) REFERENCES table_top_pattern(id)
 );

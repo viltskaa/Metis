@@ -1,12 +1,13 @@
 from dataclasses import dataclass
+from typing import Optional
+
+from app.database.enums import StatusType, WorkerType
 
 
 @dataclass
 class Task:
     id: int
-    status: str
-    created_date: int
-    updated_date: int
-    exist_table_id: int
-    user_id: int
-    work_id: int
+    start_date: int
+    status: StatusType
+    worker_type: Optional[WorkerType]
+    orders_id: int

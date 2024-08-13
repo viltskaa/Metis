@@ -2,10 +2,8 @@ DROP TABLE IF EXISTS orders;
 
 CREATE TABLE orders (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    table_top_id INTEGER,
-    table_top_pattern_id INTEGER NOT NULL,
+    tables_id INTEGER,
     table_pattern_id INTEGER NOT NULL,
-    FOREIGN KEY (table_top_id) REFERENCES table_top(id),
-    FOREIGN KEY (table_top_pattern_id) REFERENCES table_top_pattern(id),
+    FOREIGN KEY (tables_id) REFERENCES tables(id),
     FOREIGN KEY (table_pattern_id) REFERENCES table_pattern(id)
 );

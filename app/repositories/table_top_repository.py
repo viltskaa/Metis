@@ -9,20 +9,6 @@ class TableTopRepository:
     last_error: Optional[Exception] = None
 
     @staticmethod
-    def read_by_user_id(user_id: int) -> Optional[list[TableTop]]:
-        try:
-            database = db.get_database()
-            tops = database.execute('SELECT * FROM table_top WHERE user_id = ?', (user_id,)).fetchall()
-            print(tops)
-            tops = list(map(lambda tp: TableTop(*tp), tops))
-
-            return tops
-        except Exception as e:
-            TableTopRepository.last_error = e
-            current_app.logger.error(e)
-            return None
-
-    @staticmethod
     def read_by_id(table_top_id: int) -> Optional[TableTop]:
         try:
             database = db.get_database()
@@ -41,7 +27,6 @@ class TableTopRepository:
         try:
             database = db.get_database()
             tops = database.execute('SELECT * FROM table_top').fetchall()
-            print(tops)
             tops = list(map(lambda tp: TableTop(*tp), tops))
 
             return tops
@@ -51,33 +36,20 @@ class TableTopRepository:
             return None
 
     @staticmethod
-    def insert(time_start_assembly: int, user_id: int) -> bool:
+    def insert(time_start_assembly: int, width: float, height: float, perimeter: float, image_path: str) -> int | None:
         try:
             database = db.get_database()
-            database.execute('INSERT INTO table_top (time_start_assembly, user_id) VALUES (?, ?)',
-                             (time_start_assembly, user_id,))
-            database.commit()
-            return True
-        except Exception as e:
-            TableTopRepository.last_error = e
-            current_app.logger.error(e)
-            return False
+            cursor = database.cursor()
 
-    @staticmethod
-    def update(table_top_id: int, width: float, height: float, perimeter: float,
-               depth: float, color_main: str, color_edge: str,
-               material: str, article: str, time_end_assembly: int) -> bool:
-        try:
-            database = db.get_database()
-            database.execute('UPDATE table_top SET width = ?, height = ?, perimeter = ?, depth = ?, color_main = ?, '
-                             'color_edge = ?, material = ?, article = ?, time_end_assembly = ? WHERE id = ?',
-                             (width, height, perimeter,
-                              depth, color_main, color_edge,
-                              material, article, time_end_assembly,
-                              table_top_id,))
+            cursor.execute('INSERT INTO table_top (time_start_assembly, width, height, perimeter, image_path) '
+                           'VALUES (?, ?, ?, ?, ?)',
+                           (time_start_assembly, width, height, perimeter, image_path))
+
             database.commit()
-            return True
+            last_id = cursor.lastrowid
+
+            return last_id
         except Exception as e:
             TableTopRepository.last_error = e
-            current_app.logger.error(e)
-            return False
+            current_app.logger.error(f"An error occurred during the insert operation: {e}")
+            return None

@@ -1,5 +1,8 @@
+import base64
 import operator
+import os
 import time
+from datetime import datetime, timezone
 from functools import wraps
 from random import randint
 from typing import Any, Sequence, Tuple, List, Annotated
@@ -30,6 +33,50 @@ def timeit(func):
 
 def bgr_to_rgb(color: _RGB) -> _RGB:
     return color[-1], color[1], color[0]
+
+
+def save_image(image):
+    img_filename = f"processed_image_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}.jpg"
+    img_directory = os.path.join(os.getcwd(), 'saved_images')
+    os.makedirs(img_directory, exist_ok=True)
+    img_path = os.path.join(img_directory, img_filename)
+
+    cv2.imwrite(img_path, image)
+    return img_path
+
+
+def decode_image(image_base64):
+    try:
+        image_data = base64.b64decode(image_base64)
+        np_arr = np.frombuffer(image_data, np.uint8)
+        return cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+    except Exception as e:
+        raise ValueError(f"Failed to decode image: {e}")
+
+
+def convert_image_to_base64(image):
+    _, buffer = cv2.imencode('.jpg', image)
+    return base64.b64encode(buffer).decode('utf-8')
+
+
+def format_data(data, limit):
+    result = []
+    for item in data[:limit]:
+        if isinstance(item, np.ndarray):
+            result.append(item.tolist())
+        elif isinstance(item, list):
+            result.append(item)
+        else:
+            result.append(str(item))
+    return result
+
+
+def process_image(image):
+    try:
+        img, cnt, colors = produce_contours(image, draw_contours=True)
+        return img, cnt, colors
+    except Exception as e:
+        raise RuntimeError(f"Failed to process image: {e}")
 
 
 @timeit

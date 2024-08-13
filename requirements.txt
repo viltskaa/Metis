@@ -13,3 +13,4 @@ python-dotenv==1.0.1
 PyYAML==6.0.1
 Werkzeug==3.0.3
 qrcode==7.4.2
+imutils~=0.5.4

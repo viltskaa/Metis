@@ -35,6 +35,59 @@ def receive_image() -> Response:
     )
 
 
+@android.route('/add_pattern', methods=["POST"])
+def add_pattern():
+    data = request.json
+    image_base64 = data.get("image", None)
+
+    if image_base64 is None:
+        return current_app.response_class(
+            response=json.dumps({'error': 'No image provided'}),
+            status=400,
+            mimetype='application/json'
+        )
+
+    try:
+        image = decode_image(image_base64)
+        img, cnt, colors = process_image(image)
+        img_base64 = convert_image_to_base64(img)
+        img_path = save_image(image)
+
+        perimeter, width, height = cnt[0]
+
+        tt_id = TableTopService.insert_top(
+            int(datetime.now(timezone.utc).timestamp() * 1000),
+            width,
+            height,
+            perimeter,
+            img_path
+        )
+
+        success = ColorPalletService.insert_all_cp(SurfaceType.main.value, colors, tt_id)
+
+        cnt_list = format_data(cnt, 3)
+        colors_list = format_data(colors, 7)
+
+        if success:
+            return current_app.response_class(
+                response=json.dumps({'success': 'Data received successfully',
+                                     'imgBase64': img_base64,
+                                     'contours': cnt_list,
+                                     'colors': colors_list}),
+                status=200,
+                mimetype='application/json'
+            )
+
+    except Exception as e:
+        print(f"Exception occurred: {e}")
+        return current_app.response_class(
+            response=json.dumps({'error': 'An error occurred during processing'}),
+            status=500,
+            mimetype='application/json'
+        )
+
+
+
 @android.route('/processing_cv', methods=["POST"])
 def processing_cv():
     data = request.json

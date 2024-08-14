@@ -1,14 +1,15 @@
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass
 class TableTopPattern:
     id: int
-    article: str
-    name: str
+    article: Optional[str]
+    name: Optional[str]
     width: float
     height: float
-    depth: float
+    depth: Optional[float]
     perimeter: float
-    material: str
+    material: Optional[str]
     image_path: str

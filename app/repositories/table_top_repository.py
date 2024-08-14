@@ -36,14 +36,14 @@ class TableTopRepository:
             return None
 
     @staticmethod
-    def insert(time_start_assembly: int, width: float, height: float, perimeter: float, image_path: str) -> int | None:
+    def insert(time_start_assembly: int, width: float, height: float, perimeter: float, image_path: str) -> Optional[int]:
         try:
             database = db.get_database()
             cursor = database.cursor()
 
             cursor.execute('INSERT INTO table_top (time_start_assembly, width, height, perimeter, image_path) '
                            'VALUES (?, ?, ?, ?, ?)',
-                           (time_start_assembly, width, height, perimeter, image_path))
+                           (time_start_assembly, width, height, perimeter, image_path,))
 
             database.commit()
             last_id = cursor.lastrowid

@@ -37,14 +37,28 @@ class ColorPalletRepository:
             return None
 
     @staticmethod
-    def insert(surface_type: int, hex_color: str, table_top_id: int) -> int | None:
+    def read_all_by_tt_id(table_top_id: int) -> Optional[list[ColorPallet]]:
+        try:
+            database = db.get_database()
+            color_pallets = database.execute('SELECT * FROM color_pallet WHERE table_top_id = ?',
+                                             (table_top_id,)).fetchall()
+            color_pallets = list(map(lambda cp: ColorPallet(*cp), color_pallets))
+
+            return color_pallets
+        except Exception as e:
+            ColorPalletRepository.last_error = e
+            current_app.logger.error(e)
+            return None
+
+    @staticmethod
+    def insert(surface_type: int, hex_color: str, table_top_id: int) -> Optional[int]:
         try:
             database = db.get_database()
             cursor = database.cursor()
 
             cursor.execute('INSERT INTO color_pallet (surface_type, hex_color, table_top_id) '
                            'VALUES (?, ?, ?)',
-                           (surface_type, hex_color, table_top_id))
+                           (surface_type, hex_color, table_top_id,))
 
             database.commit()
             last_id = cursor.lastrowid

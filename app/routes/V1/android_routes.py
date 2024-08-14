@@ -8,8 +8,8 @@ import qrcode
 from qrcode.main import QRCode
 
 from app.database.enums import SurfaceType
-from app.services import TableTopService, ColorPalletService
-from cv import decode_image, process_image, convert_image_to_base64, format_data, save_image
+from app.services import TableTopService, ColorPalletService, TableTopPatternService, ColorPalletPatternService
+from cv import decode_image, process_image, convert_image_to_base64, format_data, save_image, process_image_pattern
 
 global_scanned_string = ""
 
@@ -49,24 +49,23 @@ def add_pattern():
 
     try:
         image = decode_image(image_base64)
-        img, cnt, colors = process_image(image)
+        img, cnt, colors = process_image_pattern(image)
         img_base64 = convert_image_to_base64(img)
         img_path = save_image(image)
 
         perimeter, width, height = cnt[0]
 
-        tt_id = TableTopService.insert_top(
-            int(datetime.now(timezone.utc).timestamp() * 1000),
+        tt_id = TableTopPatternService.insert_top_pattern(
             width,
             height,
             perimeter,
             img_path
         )
 
-        success = ColorPalletService.insert_all_cp(SurfaceType.main.value, colors, tt_id)
+        success = ColorPalletPatternService.insert_all_cpp(SurfaceType.main.value, colors, tt_id)
 
         cnt_list = format_data(cnt, 3)
-        colors_list = format_data(colors, 7)
+        colors_list = format_data(colors, 60)
 
         if success:
             return current_app.response_class(
@@ -85,7 +84,6 @@ def add_pattern():
             status=500,
             mimetype='application/json'
         )
-
 
 
 @android.route('/processing_cv', methods=["POST"])

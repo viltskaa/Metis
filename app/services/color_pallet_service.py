@@ -14,6 +14,12 @@ class ColorPalletService:
         return cps if cps is not None else []
 
     @staticmethod
+    def read_all_by_tt_id(tt_id: int) -> Optional[list[ColorPallet]]:
+        cps = ColorPalletRepository.read_all_by_tt_id(tt_id)
+
+        return cps if cps is not None else []
+
+    @staticmethod
     def get_cp(cp_id: int) -> Optional[ColorPallet]:
         return ColorPalletRepository.read_by_id(cp_id)
 

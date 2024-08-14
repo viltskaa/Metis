@@ -73,7 +73,15 @@ def format_data(data, limit):
 
 def process_image(image):
     try:
-        img, cnt, colors = produce_contours(image, draw_contours=True)
+        img, cnt, colors = produce_contours(image, draw_contours=True, clusters=5)
+        return img, cnt, colors
+    except Exception as e:
+        raise RuntimeError(f"Failed to process image: {e}")
+
+
+def process_image_pattern(image):
+    try:
+        img, cnt, colors = produce_contours(image, draw_contours=True, clusters=50, iterations_kmeans=20)
         return img, cnt, colors
     except Exception as e:
         raise RuntimeError(f"Failed to process image: {e}")

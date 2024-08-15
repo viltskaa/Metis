@@ -6,6 +6,7 @@ import numpy as np
 from app.database import TableTopPattern
 from app.services import TableTopPatternService, ColorPalletPatternService
 from app.services.parse_color import hex_to_rgb
+from cv import timeit
 
 
 def calculate_color_similarity(new_rgb_colors: Sequence[Sequence[int]], existing_rgb_colors: np.ndarray) -> float:
@@ -30,6 +31,7 @@ def compare_sizes(width1: float, height1: float, perimeter1: float,
     return width_diff <= tolerance and height_diff <= tolerance and perimeter_diff <= tolerance
 
 
+@timeit
 def get_similar_id(width: float,
                    height: float,
                    perimeter: float,

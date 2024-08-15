@@ -9,6 +9,7 @@ from qrcode.main import QRCode
 
 from app.database.enums import SurfaceType
 from app.services import TableTopService, ColorPalletService, TableTopPatternService, ColorPalletPatternService
+from app.services.search_similar_algorithm import get_similar_id
 from cv import decode_image, process_image, convert_image_to_base64, format_data, save_image, process_image_pattern
 
 global_scanned_string = ""
@@ -105,6 +106,8 @@ def processing_cv():
         img_path = save_image(image)
 
         perimeter, width, height = cnt[0]
+
+        print(get_similar_id(width, height, perimeter, colors, 0.1))
 
         tt_id = TableTopService.insert_top(
             int(datetime.now(timezone.utc).timestamp() * 1000),

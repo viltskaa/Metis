@@ -21,7 +21,7 @@ android: flask.blueprints.Blueprint = Blueprint('android', __name__)
 def receive_image() -> Response:
     data = request.get_json()
     try:
-        image = data['string_image']
+        image = data['image']
     except ValueError as e:
         return current_app.response_class(
             response=json.dumps({'error': 'Invalid string'}),
@@ -89,6 +89,7 @@ def add_pattern():
 
 @android.route('/processing_cv', methods=["POST"])
 def processing_cv():
+    print("processing_cv")
     data = request.json
     image_base64 = data.get("image", None)
 
@@ -120,7 +121,9 @@ def processing_cv():
         success = ColorPalletService.insert_all_cp(SurfaceType.main.value, colors, tt_id)
 
         cnt_list = format_data(cnt, 3)
-        colors_list = format_data(colors, 7)
+
+        # colors_list = format_data(colors, 7)
+        colors_list = [list(map(int, color)) for color in colors]
 
         if success:
             return current_app.response_class(
@@ -133,7 +136,65 @@ def processing_cv():
             )
 
     except Exception as e:
-        print(f"Exception occurred: {e}")
+        print(f"Exception occurred: {e.with_traceback()}")
+        return current_app.response_class(
+            response=json.dumps({'error': 'An error occurred during processing'}),
+            status=500,
+            mimetype='application/json'
+        )
+
+
+@android.route('/process_images', methods=["POST"])
+def process_images():
+    print("process_images")
+    data = request.json
+    main_image = data.get("main", None)
+    side_image = data.get("side", None)
+
+    if main_image is None or side_image is None:
+        return current_app.response_class(
+            response=json.dumps({'error': 'No images provided'}),
+            status=400,
+            mimetype='application/json'
+        )
+
+    try:
+        image = decode_image(main_image)
+        img, cnt, colors = process_image(image)
+        img_base64 = convert_image_to_base64(img)
+        img_path = save_image(image)
+
+        perimeter, width, height = cnt[0]
+
+        print(get_similar_id(width, height, perimeter, colors, 0.1))
+
+        tt_id = TableTopService.insert_top(
+            int(datetime.now(timezone.utc).timestamp() * 1000),
+            width,
+            height,
+            perimeter,
+            img_path
+        )
+
+        success = ColorPalletService.insert_all_cp(SurfaceType.main.value, colors, tt_id)
+
+        cnt_list = format_data(cnt, 3)
+
+        # colors_list = format_data(colors, 7)
+        colors_list = [list(map(int, color)) for color in colors]
+
+        if success:
+            return current_app.response_class(
+                response=json.dumps({'success': 'Data received successfully',
+                                     'imgBase64': img_base64,
+                                     'contours': cnt_list,
+                                     'colors': colors_list}),
+                status=200,
+                mimetype='application/json'
+            )
+
+    except Exception as e:
+        print(f"Exception occurred: {e.with_traceback()}")
         return current_app.response_class(
             response=json.dumps({'error': 'An error occurred during processing'}),
             status=500,

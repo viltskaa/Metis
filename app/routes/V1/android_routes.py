@@ -8,6 +8,7 @@ import qrcode
 from qrcode.main import QRCode
 
 from app.database.enums import SurfaceType
+from app.database import TableTopPattern
 from app.services import TableTopService, ColorPalletService, TableTopPatternService, ColorPalletPatternService
 from app.services.search_similar_algorithm import get_similar_id
 from cv import decode_image, process_image, convert_image_to_base64, format_data, save_image, process_image_pattern
@@ -73,6 +74,73 @@ def add_pattern():
 
     except Exception as e:
         print(f"Exception occurred: {e}")
+        return current_app.response_class(
+            response=json.dumps({'error': 'An error occurred during processing'}),
+            status=500,
+            mimetype='application/json'
+        )
+
+
+@android.route('/check_pattern', methods=["POST"])
+def check_pattern():
+    print("check_pattern")
+    data = request.json
+    image_base64 = data.get("image", None)
+
+    if image_base64 is None:
+        return current_app.response_class(
+            response=json.dumps({'error': 'No image provided'}),
+            status=400,
+            mimetype='application/json'
+        )
+
+    try:
+        image = decode_image(image_base64)
+        img, cnt, colors = process_image(image)
+        img_base64 = convert_image_to_base64(img)
+        img_path = save_image(image)
+
+        perimeter, width, height = cnt[0]
+
+        tt_id = get_similar_id(width, height, perimeter, colors, 0.1)
+
+        # не нашел существующий паттерн
+        # создать новый => послать на клиента метку о том, что надо заново послать чек запрос
+        if tt_id is None:
+            tt_id = TableTopService.insert_top(
+                int(datetime.now(timezone.utc).timestamp() * 1000),
+                width,
+                height,
+                perimeter,
+                img_path
+            )
+            # success = ColorPalletService.insert_all_cp(SurfaceType.main.value, colors, tt_id)
+            return current_app.response_class(
+                response=json.dumps({
+                    'new': True,
+                    'id': tt_id
+                }),
+                status=200,
+                mimetype='application/json'
+            )
+
+        # нашел паттерн => по id получить данные по нему и отправить
+        pattern: TableTopPattern | None = TableTopPatternService.get_top_pattern(tt_id)
+
+        return current_app.response_class(
+            response=json.dumps({
+                'new': False,
+                'id': tt_id,
+                'article': pattern.article,
+                'name': pattern.name,
+                'material': pattern.material
+            }),
+            status=200,
+            mimetype='application/json'
+        )
+
+    except Exception as e:
+        print(f"Exception occurred: {e.with_traceback()}")
         return current_app.response_class(
             response=json.dumps({'error': 'An error occurred during processing'}),
             status=500,

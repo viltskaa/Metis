@@ -19,6 +19,7 @@ android: flask.blueprints.Blueprint = Blueprint('android', __name__)
 
 @android.route('/add_pattern', methods=["POST"])
 def add_pattern():
+    print('add_pattern')
     data = request.json
     image_base64 = data.get("image", None)
 
@@ -28,6 +29,16 @@ def add_pattern():
             status=400,
             mimetype='application/json'
         )
+
+    # return current_app.response_class(
+    #     response=json.dumps({
+    #         'imgBase64': "gjrelgjslkjgkljsdlkjsdlkf",
+    #         'contours': [],
+    #         'colors': [[0, 0, 0], [114, 76, 55]]
+    #     }),
+    #     status=200,
+    #     mimetype='application/json'
+    # )
 
     try:
         image = decode_image(image_base64)
@@ -51,10 +62,11 @@ def add_pattern():
 
         if success:
             return current_app.response_class(
-                response=json.dumps({'success': 'Data received successfully',
-                                     'imgBase64': img_base64,
-                                     'contours': cnt_list,
-                                     'colors': colors_list}),
+                response=json.dumps({
+                    'imgBase64': img_base64,
+                    'contours': cnt_list,
+                    'colors': colors_list
+                }),
                 status=200,
                 mimetype='application/json'
             )

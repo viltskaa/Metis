@@ -9,7 +9,8 @@ from qrcode.main import QRCode
 
 from app.database.enums import SurfaceType
 from app.database import TableTopPattern
-from app.services import TableTopService, ColorPalletService, TableTopPatternService, ColorPalletPatternService
+from app.services import TableTopService, ColorPalletService, TableTopPatternService, ColorPalletPatternService, \
+    path_to_base64
 from app.services.search_similar_algorithm import get_similar_id
 from cv import decode_image, process_image, convert_image_to_base64, format_data, save_image, process_image_pattern
 
@@ -18,31 +19,22 @@ global_scanned_string = ""
 android: flask.blueprints.Blueprint = Blueprint('android', __name__)
 
 
+# дописать логику для сканирования и сохранения боковой части столешницы (паттерн)
 @android.route('/add_pattern', methods=["POST"])
 def add_pattern():
-    print('add_pattern')
     data = request.json
-    image_base64 = data.get("image", None)
+    main_image_base64 = data.get("main_image", None)
+    edge_image_base64 = data.get("edge_image", None)
 
-    if image_base64 is None:
+    if main_image_base64 is None or edge_image_base64 is None:
         return current_app.response_class(
             response=json.dumps({'error': 'No image provided'}),
             status=400,
             mimetype='application/json'
         )
 
-    # return current_app.response_class(
-    #     response=json.dumps({
-    #         'imgBase64': "gjrelgjslkjgkljsdlkjsdlkf",
-    #         'contours': [],
-    #         'colors': [[0, 0, 0], [114, 76, 55]]
-    #     }),
-    #     status=200,
-    #     mimetype='application/json'
-    # )
-
     try:
-        image = decode_image(image_base64)
+        image = decode_image(main_image_base64)
         img, cnt, colors = process_image_pattern(image)
         img_base64 = convert_image_to_base64(img)
         img_path = save_image(image)
@@ -81,13 +73,14 @@ def add_pattern():
         )
 
 
-@android.route('/check_pattern', methods=["POST"])
-def check_pattern():
-    print("check_pattern")
+# дописать логику для сканирования и поиска по боковой части столешницы
+@android.route('/find_pattern', methods=["POST"])
+def find_pattern():
     data = request.json
-    image_base64 = data.get("image", None)
+    main_image_base64 = data.get("main_image", None)
+    edge_image_base64 = data.get("edge_image", None)
 
-    if image_base64 is None:
+    if main_image_base64 is None or edge_image_base64 is None:
         return current_app.response_class(
             response=json.dumps({'error': 'No image provided'}),
             status=400,
@@ -95,46 +88,39 @@ def check_pattern():
         )
 
     try:
-        image = decode_image(image_base64)
+        image = decode_image(main_image_base64)
         img, cnt, colors = process_image(image)
-        img_base64 = convert_image_to_base64(img)
-        img_path = save_image(image)
 
         perimeter, width, height = cnt[0]
 
-        tt_id = get_similar_id(width, height, perimeter, colors, 0.1)
+        ttp_id = get_similar_id(width, height, perimeter, colors, 0.1)
 
-        # не нашел существующий паттерн
-        # создать новый => послать на клиента метку о том, что надо заново послать чек запрос
-        if tt_id is None:
-            tt_id = TableTopService.insert_top(
-                int(datetime.now(timezone.utc).timestamp() * 1000),
-                width,
-                height,
-                perimeter,
-                img_path
-            )
-            # success = ColorPalletService.insert_all_cp(SurfaceType.main.value, colors, tt_id)
+        if ttp_id is None:
             return current_app.response_class(
-                response=json.dumps({
-                    'new': True,
-                    'id': tt_id
-                }),
-                status=200,
+                response=json.dumps({'error': 'No pattern with this parameters'}),
+                status=400,
                 mimetype='application/json'
             )
 
-        # нашел паттерн => по id получить данные по нему и отправить
-        pattern: TableTopPattern | None = TableTopPatternService.get_top_pattern(tt_id)
+        pattern: TableTopPattern | None = TableTopPatternService.get_top_pattern(ttp_id)
 
         return current_app.response_class(
-            response=json.dumps({
-                'new': False,
-                'id': tt_id,
-                'article': pattern.article,
-                'name': pattern.name,
-                'material': pattern.material
-            }),
+            response=json.dumps({'success': 'Table top successfully find',
+                                 'pattern_id': ttp_id,
+                                 'article': pattern.article,
+                                 'name': pattern.name,
+                                 'material': pattern.material,
+                                 'pattern_width': pattern.width,
+                                 'pattern_height': pattern.height,
+                                 'pattern_perimeter': pattern.perimeter,
+                                 'pattern_depth': pattern.depth,
+                                 'pattern_image_base64': path_to_base64(pattern.image_path),
+                                 'perimeter': perimeter,
+                                 'width': width,
+                                 'height': height,
+                                 'colors': colors,
+                                 'image_base64': main_image_base64
+                                 }),
             status=200,
             mimetype='application/json'
         )
@@ -148,9 +134,9 @@ def check_pattern():
         )
 
 
+# подлежит удалению
 @android.route('/processing_cv', methods=["POST"])
 def processing_cv():
-    print("processing_cv")
     data = request.json
     image_base64 = data.get("image", None)
 
@@ -169,79 +155,22 @@ def processing_cv():
 
         perimeter, width, height = cnt[0]
 
-        print(get_similar_id(width, height, perimeter, colors, 0.1))
+        ttp_id = get_similar_id(width, height, perimeter, colors, 0.1)
+        print(ttp_id)
 
         tt_id = TableTopService.insert_top(
             int(datetime.now(timezone.utc).timestamp() * 1000),
             width,
             height,
             perimeter,
-            img_path
+            img_path,
+            ttp_id
         )
 
         success = ColorPalletService.insert_all_cp(SurfaceType.main.value, colors, tt_id)
 
         cnt_list = format_data(cnt, 3)
 
-        # colors_list = format_data(colors, 7)
-        colors_list = [list(map(int, color)) for color in colors]
-
-        if success:
-            return current_app.response_class(
-                response=json.dumps({'success': 'Data received successfully',
-                                     'imgBase64': img_base64,
-                                     'contours': cnt_list,
-                                     'colors': colors_list}),
-                status=200,
-                mimetype='application/json'
-            )
-
-    except Exception as e:
-        print(f"Exception occurred: {e.with_traceback()}")
-        return current_app.response_class(
-            response=json.dumps({'error': 'An error occurred during processing'}),
-            status=500,
-            mimetype='application/json'
-        )
-
-
-@android.route('/process_images', methods=["POST"])
-def process_images():
-    print("process_images")
-    data = request.json
-    main_image = data.get("main", None)
-    side_image = data.get("side", None)
-
-    if main_image is None or side_image is None:
-        return current_app.response_class(
-            response=json.dumps({'error': 'No images provided'}),
-            status=400,
-            mimetype='application/json'
-        )
-
-    try:
-        image = decode_image(main_image)
-        img, cnt, colors = process_image(image)
-        img_base64 = convert_image_to_base64(img)
-        img_path = save_image(image)
-
-        perimeter, width, height = cnt[0]
-
-        print(get_similar_id(width, height, perimeter, colors, 0.1))
-
-        tt_id = TableTopService.insert_top(
-            int(datetime.now(timezone.utc).timestamp() * 1000),
-            width,
-            height,
-            perimeter,
-            img_path
-        )
-
-        success = ColorPalletService.insert_all_cp(SurfaceType.main.value, colors, tt_id)
-
-        cnt_list = format_data(cnt, 3)
-
-        # colors_list = format_data(colors, 7)
         colors_list = [list(map(int, color)) for color in colors]
 
         if success:

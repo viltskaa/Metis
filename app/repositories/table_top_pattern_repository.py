@@ -56,14 +56,14 @@ class TableTopPatternRepository:
             return None
 
     @staticmethod
-    def update(ttp_id: int, article: str, name: str, material: str) -> Optional[int]:
+    def update(ttp_id: int, article: str, name: str, material: str, image_path: str) -> Optional[int]:
         try:
             database = db.get_database()
             cursor = database.cursor()
 
-            cursor.execute('UPDATE table_top_pattern SET (article, name, material) = (?, ?, ?) '
+            cursor.execute('UPDATE table_top_pattern SET (article, name, material, image_path) = (?, ?, ?, ?) '
                            'WHERE id = ?',
-                           (article, name, material, ttp_id,))
+                           (article, name, material, ttp_id, image_path, ))
 
             database.commit()
             last_id = cursor.lastrowid

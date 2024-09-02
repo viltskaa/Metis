@@ -21,5 +21,5 @@ class TableTopPatternService:
         return TableTopPatternRepository.insert(width, height, perimeter, image_path)
 
     @staticmethod
-    def update_top_pattern(ttp_id: int, article: str, name: str, material: str) -> Optional[int]:
-        return TableTopPatternRepository.update(ttp_id, article, name, material)
+    def update_top_pattern(ttp_id: int, article: str, name: str, material: str, image_path: str) -> Optional[int]:
+        return TableTopPatternRepository.update(ttp_id, article, name, material, image_path)

@@ -17,5 +17,10 @@ class TableTopService:
         return TableTopRepository.read_by_id(top_id)
 
     @staticmethod
-    def insert_top(time_start_assembly: int, width: float, height: float, perimeter: float, image_path: str) -> int:
-        return TableTopRepository.insert(time_start_assembly, width, height, perimeter, image_path)
+    def insert_top(time_start_assembly: int,
+                   width: float,
+                   height: float,
+                   perimeter: float,
+                   image_path: str,
+                   ttp_id: int) -> int:
+        return TableTopRepository.insert(time_start_assembly, width, height, perimeter, image_path, ttp_id)

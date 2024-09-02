@@ -21,7 +21,7 @@ android: flask.blueprints.Blueprint = Blueprint('android', __name__)
 
 # дописать логику для сканирования и сохранения боковой части столешницы (паттерн)
 @android.route('/add_pattern', methods=["POST"])
-def add_pattern():
+def add_pattern() -> Response:
     data = request.json
     main_image_base64 = data.get("main_image", None)
     edge_image_base64 = data.get("edge_image", None)
@@ -75,7 +75,7 @@ def add_pattern():
 
 # дописать логику для сканирования и поиска по боковой части столешницы
 @android.route('/find_pattern', methods=["POST"])
-def find_pattern():
+def find_pattern() -> Response:
     data = request.json
     main_image_base64 = data.get("main_image", None)
     edge_image_base64 = data.get("edge_image", None)
@@ -136,7 +136,7 @@ def find_pattern():
 
 # подлежит удалению
 @android.route('/processing_cv', methods=["POST"])
-def processing_cv():
+def processing_cv() -> Response:
     data = request.json
     image_base64 = data.get("image", None)
 

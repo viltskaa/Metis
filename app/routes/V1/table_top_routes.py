@@ -52,7 +52,7 @@ def add_table_top() -> Response:
                                            ttp_id
                                            )
 
-        success = ColorPalletService.insert_all_cp(SurfaceType.main.value, colors, tt_id)
+        success = ColorPalletService.insert_all_cp(SurfaceType.MAIN.value, colors, tt_id)
 
         if success:
             return current_app.response_class(

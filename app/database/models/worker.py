@@ -10,3 +10,4 @@ class Worker:
     surname: str
     patronymic: str
     type: WorkerType
+    password_hash: str

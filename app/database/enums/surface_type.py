@@ -2,5 +2,5 @@ import enum
 
 
 class SurfaceType(enum.Enum):
-    main = 0
-    edge = 1
+    MAIN = 0
+    EDGE = 1

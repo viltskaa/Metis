@@ -7,10 +7,10 @@ import io
 import qrcode
 from qrcode.main import QRCode
 
-from app.database.enums import SurfaceType
+from app.database.enums import SurfaceType, WorkerType
 from app.database import TableTopPattern
 from app.services import TableTopService, ColorPalletService, TableTopPatternService, ColorPalletPatternService, \
-    path_to_base64
+    path_to_base64, role_required
 from app.services.search_similar_algorithm import get_similar_id
 from cv import decode_image, process_image, convert_image_to_base64, format_data, save_image, process_image_pattern
 
@@ -20,7 +20,8 @@ android: flask.blueprints.Blueprint = Blueprint('android', __name__)
 
 
 # дописать логику для сканирования и сохранения боковой части столешницы (паттерн)
-@android.route('/add_pattern', methods=["POST"])
+@android.route('/add_pattern', methods=["POST"], endpoint='add_pattern')
+@role_required(WorkerType.TASKMASTER)
 def add_pattern() -> Response:
     data = request.json
     main_image_base64 = data.get("main_image", None)
@@ -48,7 +49,7 @@ def add_pattern() -> Response:
             img_path
         )
 
-        success = ColorPalletPatternService.insert_all_cpp(SurfaceType.main.value, colors, tt_id)
+        success = ColorPalletPatternService.insert_all_cpp(SurfaceType.MAIN.value, colors, tt_id)
 
         cnt_list = format_data(cnt, 3)
         colors_list = format_data(colors, 60)
@@ -74,7 +75,8 @@ def add_pattern() -> Response:
 
 
 # дописать логику для сканирования и поиска по боковой части столешницы
-@android.route('/find_pattern', methods=["POST"])
+@android.route('/find_pattern', methods=["POST"], endpoint='find_pattern')
+@role_required(WorkerType.ASSEMBLER)
 def find_pattern() -> Response:
     data = request.json
     main_image_base64 = data.get("main_image", None)
@@ -126,7 +128,7 @@ def find_pattern() -> Response:
         )
 
     except Exception as e:
-        print(f"Exception occurred: {e.with_traceback()}")
+        print(f"Exception occurred: {e}")
         return current_app.response_class(
             response=json.dumps({'error': 'An error occurred during processing'}),
             status=500,
@@ -167,7 +169,7 @@ def processing_cv() -> Response:
             ttp_id
         )
 
-        success = ColorPalletService.insert_all_cp(SurfaceType.main.value, colors, tt_id)
+        success = ColorPalletService.insert_all_cp(SurfaceType.MAIN.value, colors, tt_id)
 
         cnt_list = format_data(cnt, 3)
 

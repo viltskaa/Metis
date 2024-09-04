@@ -25,11 +25,13 @@ android: flask.blueprints.Blueprint = Blueprint('android', __name__)
 def add_pattern() -> Response:
     data = request.json
     main_image_base64 = data.get("main_image", None)
-    edge_image_base64 = data.get("edge_image", None)
+    side_image_base64 = data.get("side_image", None)
 
-    if main_image_base64 is None or edge_image_base64 is None:
+    if main_image_base64 is None or side_image_base64 is None:
         return current_app.response_class(
-            response=json.dumps({'error': 'No image provided'}),
+            response=json.dumps({
+                'msg': 'No image provided'
+            }),
             status=400,
             mimetype='application/json'
         )
@@ -57,6 +59,7 @@ def add_pattern() -> Response:
         if success:
             return current_app.response_class(
                 response=json.dumps({
+                    'msg': 'success',
                     'imgBase64': img_base64,
                     'contours': cnt_list,
                     'colors': colors_list
@@ -80,11 +83,13 @@ def add_pattern() -> Response:
 def find_pattern() -> Response:
     data = request.json
     main_image_base64 = data.get("main_image", None)
-    edge_image_base64 = data.get("edge_image", None)
+    side_image_base64 = data.get("side_image", None)
 
-    if main_image_base64 is None or edge_image_base64 is None:
+    if main_image_base64 is None or side_image_base64 is None:
         return current_app.response_class(
-            response=json.dumps({'error': 'No image provided'}),
+            response=json.dumps({
+                'msg': 'No image provided'
+            }),
             status=400,
             mimetype='application/json'
         )
@@ -99,7 +104,9 @@ def find_pattern() -> Response:
 
         if ttp_id is None:
             return current_app.response_class(
-                response=json.dumps({'error': 'No pattern with this parameters'}),
+                response=json.dumps({
+                    'msg': 'No pattern with this parameters'
+                }),
                 status=400,
                 mimetype='application/json'
             )
@@ -107,22 +114,23 @@ def find_pattern() -> Response:
         pattern: TableTopPattern | None = TableTopPatternService.get_top_pattern(ttp_id)
 
         return current_app.response_class(
-            response=json.dumps({'success': 'Table top successfully find',
-                                 'pattern_id': ttp_id,
-                                 'article': pattern.article,
-                                 'name': pattern.name,
-                                 'material': pattern.material,
-                                 'pattern_width': pattern.width,
-                                 'pattern_height': pattern.height,
-                                 'pattern_perimeter': pattern.perimeter,
-                                 'pattern_depth': pattern.depth,
-                                 'pattern_image_base64': path_to_base64(pattern.image_path),
-                                 'perimeter': perimeter,
-                                 'width': width,
-                                 'height': height,
-                                 'colors': colors,
-                                 'image_base64': main_image_base64
-                                 }),
+            response=json.dumps({
+                'msg': 'Table top successfully find',
+                'pattern_id': ttp_id,
+                'article': pattern.article,
+                'name': pattern.name,
+                'material': pattern.material,
+                'pattern_width': pattern.width,
+                'pattern_height': pattern.height,
+                'pattern_perimeter': pattern.perimeter,
+                'pattern_depth': pattern.depth,
+                'pattern_image_base64': path_to_base64(pattern.image_path),
+                'perimeter': perimeter,
+                'width': width,
+                'height': height,
+                'colors': colors,
+                'image_base64': main_image_base64
+            }),
             status=200,
             mimetype='application/json'
         )
@@ -130,7 +138,9 @@ def find_pattern() -> Response:
     except Exception as e:
         print(f"Exception occurred: {e}")
         return current_app.response_class(
-            response=json.dumps({'error': 'An error occurred during processing'}),
+            response=json.dumps({
+                'msg': 'An error occurred during processing'
+            }),
             status=500,
             mimetype='application/json'
         )

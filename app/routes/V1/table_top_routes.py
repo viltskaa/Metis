@@ -35,7 +35,7 @@ def add_table_top() -> Response:
     if image_base64 is None or colors is None or height is None or width is None \
             or perimeter is None or ttp_id is None:
         return current_app.response_class(
-            response=json.dumps({'error': 'No params provided'}),
+            response=json.dumps({'msg': 'No params provided'}),
             status=400,
             mimetype='application/json'
         )
@@ -56,7 +56,7 @@ def add_table_top() -> Response:
 
         if success:
             return current_app.response_class(
-                response=json.dumps({'success': 'Data added successfully'}),
+                response=json.dumps({'msg': 'Data added successfully'}),
                 status=200,
                 mimetype='application/json'
             )
@@ -64,7 +64,7 @@ def add_table_top() -> Response:
     except Exception as e:
         print(f"Exception occurred: {e.with_traceback()}")
         return current_app.response_class(
-            response=json.dumps({'error': 'An error occurred during insert'}),
+            response=json.dumps({'msg': 'An error occurred during insert'}),
             status=500,
             mimetype='application/json'
         )

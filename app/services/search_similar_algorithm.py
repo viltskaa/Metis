@@ -1,4 +1,4 @@
-from typing import Sequence, Optional, List
+from typing import Sequence, Optional, List, Annotated
 from sklearn.neighbors import KDTree
 
 import numpy as np
@@ -6,7 +6,7 @@ import numpy as np
 from app.database import TableTopPattern
 from app.services import TableTopPatternService, ColorPalletPatternService
 from app.services.parse_color import hex_to_rgb
-from cv import timeit
+from cv import timeit, Color
 
 
 def calculate_color_similarity(new_rgb_colors: Sequence[Sequence[int]], existing_rgb_colors: np.ndarray) -> float:
@@ -23,7 +23,7 @@ def calculate_color_similarity(new_rgb_colors: Sequence[Sequence[int]], existing
 
 def compare_sizes(width1: float, height1: float, perimeter1: float,
                   width2: float, height2: float, perimeter2: float,
-                  tolerance: float = 0.01) -> bool:
+                  tolerance: float = 0.05) -> bool:
     width_diff = abs(width1 - width2) / max(width1, width2)
     height_diff = abs(height1 - height2) / max(height1, height2)
     perimeter_diff = abs(perimeter1 - perimeter2) / max(perimeter1, perimeter2)
@@ -35,7 +35,7 @@ def compare_sizes(width1: float, height1: float, perimeter1: float,
 def get_similar_id(width: float,
                    height: float,
                    perimeter: float,
-                   colors_rgb: Sequence[Sequence[int]],
+                   colors_rgb: List[Color],
                    similarity: float) -> Optional[int]:
     all_patterns: List[TableTopPattern] = TableTopPatternService.read_all()
     min_similarity = 1000.0
@@ -48,7 +48,11 @@ def get_similar_id(width: float,
                 for color in ColorPalletPatternService.read_all_by_ttp_id(pattern.id)
             ])
 
-            color_similarity: float = calculate_color_similarity(colors_rgb, pattern_colors_rgb)
+            rgb_values: Sequence[Annotated[Sequence[int], 3]] = [
+                color.rgb for color in colors_rgb if color.rgb is not None
+            ]
+
+            color_similarity: float = calculate_color_similarity(rgb_values, pattern_colors_rgb)
 
             if color_similarity < min_similarity:
                 min_similarity = color_similarity

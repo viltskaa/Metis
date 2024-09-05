@@ -1,8 +1,7 @@
 import flask
 from flask import Blueprint, Response, request, current_app, json
 
-from app.services import TableTopPatternService
-from cv import decode_image, save_image
+from app.services import TableTopPatternService, decode_image, save_image
 
 table_top_pattern: flask.blueprints.Blueprint = Blueprint('table_top_pattern', __name__)
 

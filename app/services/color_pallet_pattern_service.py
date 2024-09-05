@@ -1,8 +1,9 @@
-from typing import Annotated, Optional, Sequence
+from typing import Annotated, Optional, Sequence, List
 
 from app.database import ColorPalletPattern
 from app.repositories import ColorPalletPatternRepository
 from app.services.parse_color import convert_rgb_to_hex_list
+from cv import Color
 
 
 class ColorPalletPatternService:
@@ -25,9 +26,13 @@ class ColorPalletPatternService:
 
     @staticmethod
     def insert_all_cpp(surface_type: int,
-                       rgb_values: Sequence[Annotated[Sequence[int], 3]],
+                       color_objects: List[Color],
                        table_top_pattern_id: int) -> bool:
         try:
+            rgb_values: Sequence[Annotated[Sequence[int], 3]] = [
+                color.rgb for color in color_objects if color.rgb is not None
+            ]
+
             list_hex = convert_rgb_to_hex_list(rgb_values)
 
             for hex_str in list_hex:

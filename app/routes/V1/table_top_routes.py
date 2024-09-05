@@ -5,8 +5,7 @@ import flask
 from flask import Blueprint, Response, request, current_app, json
 
 from app.database.enums import SurfaceType
-from app.services import TableTopService, ColorPalletService
-from cv import decode_image, save_image
+from app.services import TableTopService, ColorPalletService, decode_image, save_image
 
 table_top: flask.blueprints.Blueprint = Blueprint('table_top', __name__)
 

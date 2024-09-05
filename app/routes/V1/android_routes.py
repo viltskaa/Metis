@@ -10,9 +10,8 @@ from qrcode.main import QRCode
 from app.database.enums import SurfaceType, WorkerType
 from app.database import TableTopPattern
 from app.services import TableTopService, ColorPalletService, TableTopPatternService, ColorPalletPatternService, \
-    path_to_base64, role_required
-from app.services.search_similar_algorithm import get_similar_id
-from cv import decode_image, process_image, convert_image_to_base64, format_data, save_image, process_image_pattern
+    path_to_base64, role_required, process_image, get_similar_id, decode_image, convert_image_to_base64, format_data, \
+    save_image, process_image_pattern
 
 global_scanned_string = ""
 
@@ -21,7 +20,6 @@ android: flask.blueprints.Blueprint = Blueprint('android', __name__)
 
 # дописать логику для сканирования и сохранения боковой части столешницы (паттерн)
 @android.route('/add_pattern', methods=["POST"], endpoint='add_pattern')
-@role_required(WorkerType.TASKMASTER)
 def add_pattern() -> Response:
     data = request.json
     main_image_base64 = data.get("main_image", None)
@@ -37,12 +35,8 @@ def add_pattern() -> Response:
         )
 
     try:
-        image = decode_image(main_image_base64)
-        img, cnt, colors = process_image_pattern(image)
+        img, perimeter, width, height, colors, img_path = process_image_pattern(main_image_base64)
         img_base64 = convert_image_to_base64(img)
-        img_path = save_image(image)
-
-        perimeter, width, height = cnt[0]
 
         tt_id = TableTopPatternService.insert_top_pattern(
             width,
@@ -53,7 +47,6 @@ def add_pattern() -> Response:
 
         success = ColorPalletPatternService.insert_all_cpp(SurfaceType.MAIN.value, colors, tt_id)
 
-        cnt_list = format_data(cnt, 3)
         colors_list = format_data(colors, 60)
 
         if success:
@@ -61,7 +54,9 @@ def add_pattern() -> Response:
                 response=json.dumps({
                     'msg': 'success',
                     'imgBase64': img_base64,
-                    'contours': cnt_list,
+                    'perimeter': perimeter,
+                    'width': width,
+                    'height': height,
                     'colors': colors_list
                 }),
                 status=200,
@@ -79,7 +74,6 @@ def add_pattern() -> Response:
 
 # дописать логику для сканирования и поиска по боковой части столешницы
 @android.route('/find_pattern', methods=["POST"], endpoint='find_pattern')
-@role_required(WorkerType.ASSEMBLER)
 def find_pattern() -> Response:
     data = request.json
     main_image_base64 = data.get("main_image", None)
@@ -95,10 +89,7 @@ def find_pattern() -> Response:
         )
 
     try:
-        image = decode_image(main_image_base64)
-        img, cnt, colors = process_image(image)
-
-        perimeter, width, height = cnt[0]
+        img, perimeter, width, height, colors = process_image(main_image_base64)
 
         ttp_id = get_similar_id(width, height, perimeter, colors, 0.1)
 
@@ -110,6 +101,8 @@ def find_pattern() -> Response:
                 status=400,
                 mimetype='application/json'
             )
+
+        print(ttp_id)
 
         pattern: TableTopPattern | None = TableTopPatternService.get_top_pattern(ttp_id)
 
@@ -128,7 +121,7 @@ def find_pattern() -> Response:
                 'perimeter': perimeter,
                 'width': width,
                 'height': height,
-                'colors': colors,
+                'colors': format_data(colors, 60),
                 'image_base64': main_image_base64
             }),
             status=200,

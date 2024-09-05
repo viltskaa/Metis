@@ -6,3 +6,5 @@ from .color_pallet_pattern_service import ColorPalletPatternService
 from .image_finder import *
 from .decorator import *
 from .authorization import *
+from .process_image import *
+from .search_similar_algorithm import *

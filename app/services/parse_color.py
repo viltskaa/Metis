@@ -1,5 +1,7 @@
 from typing import Sequence, Annotated, List
 
+from cv import Color
+
 
 def rgb_to_hex(rgb: Sequence[int]) -> str:
     return f"#{rgb[0]:02X}{rgb[1]:02X}{rgb[2]:02X}"
@@ -11,4 +13,8 @@ def convert_rgb_to_hex_list(rgb_sequence: Sequence[Annotated[Sequence[int], 3]])
 
 def hex_to_rgb(hex_color: str) -> Sequence[int]:
     hex_color = hex_color.lstrip('#')
-    return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+    return tuple(int(hex_color[i:i + 2], 16) for i in (0, 2, 4))
+
+
+def colors_to_hex_list(colors: List[Color]) -> List[str]:
+    return [color.hex for color in colors if color.hex is not None]

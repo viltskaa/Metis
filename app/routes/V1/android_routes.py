@@ -12,6 +12,7 @@ from app.database import TableTopPattern
 from app.services import TableTopService, ColorPalletService, TableTopPatternService, ColorPalletPatternService, \
     path_to_base64, role_required, process_image, get_similar_id, decode_image, convert_image_to_base64, format_data, \
     save_image, process_image_pattern
+from app.services.parse_color import colors_to_hex_list
 
 global_scanned_string = ""
 
@@ -47,7 +48,7 @@ def add_pattern() -> Response:
 
         success = ColorPalletPatternService.insert_all_cpp(SurfaceType.MAIN.value, colors, tt_id)
 
-        colors_list = format_data(colors, 60)
+        colors_list = colors_to_hex_list(colors)
 
         if success:
             return current_app.response_class(

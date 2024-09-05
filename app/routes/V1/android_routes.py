@@ -48,8 +48,6 @@ def add_pattern() -> Response:
 
         success = ColorPalletPatternService.insert_all_cpp(SurfaceType.MAIN.value, colors, tt_id)
 
-        colors_list = colors_to_hex_list(colors)
-
         if success:
             return current_app.response_class(
                 response=json.dumps({
@@ -58,7 +56,7 @@ def add_pattern() -> Response:
                     'perimeter': perimeter,
                     'width': width,
                     'height': height,
-                    'colors': colors_list
+                    'colors': colors_to_hex_list(colors)
                 }),
                 status=200,
                 mimetype='application/json'
@@ -122,7 +120,7 @@ def find_pattern() -> Response:
                 'perimeter': perimeter,
                 'width': width,
                 'height': height,
-                'colors': format_data(colors, 60),
+                'colors': colors_to_hex_list(colors),
                 'image_base64': main_image_base64
             }),
             status=200,

@@ -25,11 +25,9 @@ class ColorPalletService:
         return ColorPalletRepository.read_by_id(cp_id)
 
     @staticmethod
-    def insert_all_cp(surface_type: int, colors: List[Color], table_top_id: int) -> bool:
+    def insert_all_cp(surface_type: int, colors: List[str], table_top_id: int) -> bool:
         try:
-            list_hex = colors_to_hex_list(colors)
-
-            for hex_str in list_hex:
+            for hex_str in colors:
                 ColorPalletRepository.insert(surface_type, hex_str, table_top_id)
 
             return True

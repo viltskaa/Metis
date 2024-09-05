@@ -24,12 +24,12 @@ def get_all_table_tops_from_database() -> Response:
 @table_top.route('/add_table_top', methods=['POST'])
 def add_table_top() -> Response:
     data = request.json
-    ttp_id = data.get('ttp_id', default=None, type=int)
-    perimeter = data.get('perimeter', default=None, type=float)
-    width = data.get('width', default=None, type=float)
-    height = data.get('height', default=None, type=float)
-    image_base64 = data.get("image_base64", default=None, type=str)
-    colors = data.get("colors", default=None, type=Sequence[Sequence[int]])
+    ttp_id = data.get('ttp_id', None)
+    perimeter = data.get('perimeter', None)
+    width = data.get('width', None)
+    height = data.get('height', None)
+    image_base64 = data.get("image_base64", None)
+    colors = data.get("colors", None)
 
     if image_base64 is None or colors is None or height is None or width is None \
             or perimeter is None or ttp_id is None:

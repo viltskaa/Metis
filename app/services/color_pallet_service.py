@@ -1,8 +1,9 @@
-from typing import Optional, Sequence, Annotated
+from typing import Optional, Sequence, Annotated, List
 
 from app.database import ColorPallet
 from app.repositories import ColorPalletRepository
-from app.services.parse_color import convert_rgb_to_hex_list
+from app.services.parse_color import convert_rgb_to_hex_list, colors_to_hex_list
+from cv import Color
 
 
 class ColorPalletService:
@@ -24,9 +25,9 @@ class ColorPalletService:
         return ColorPalletRepository.read_by_id(cp_id)
 
     @staticmethod
-    def insert_all_cp(surface_type: int, rgb_values: Sequence[Annotated[Sequence[int], 3]], table_top_id: int) -> bool:
+    def insert_all_cp(surface_type: int, colors: List[Color], table_top_id: int) -> bool:
         try:
-            list_hex = convert_rgb_to_hex_list(rgb_values)
+            list_hex = colors_to_hex_list(colors)
 
             for hex_str in list_hex:
                 ColorPalletRepository.insert(surface_type, hex_str, table_top_id)

@@ -2,6 +2,8 @@ blinker==1.8.2
 click==8.1.7
 Flask==3.0.3
 Flask-DebugToolbar==0.15.1
+Flask-Bcrypt==1.0.1
+Flask-Jwt-Extended==4.6.0
 Flask-Script==2.0.6
 itsdangerous==2.2.0
 Jinja2==3.1.4

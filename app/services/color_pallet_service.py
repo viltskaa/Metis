@@ -1,9 +1,7 @@
-from typing import Optional, Sequence, Annotated, List
+from typing import Optional, List
 
 from app.database import ColorPallet
 from app.repositories import ColorPalletRepository
-from app.services.parse_color import convert_rgb_to_hex_list, colors_to_hex_list
-from cv import Color
 
 
 class ColorPalletService:

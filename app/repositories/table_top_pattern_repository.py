@@ -63,7 +63,7 @@ class TableTopPatternRepository:
 
             cursor.execute('UPDATE table_top_pattern SET (article, name, material, image_path) = (?, ?, ?, ?) '
                            'WHERE id = ?',
-                           (article, name, material, ttp_id, image_path, ))
+                           (article, name, material, image_path, ttp_id,))
 
             database.commit()
             last_id = cursor.lastrowid

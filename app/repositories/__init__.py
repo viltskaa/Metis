@@ -6,3 +6,6 @@ from .worker_repository import *
 from .unit_pattern_repository import *
 from .unit_repository import *
 from .table_pattern_repository import *
+from .table_repository import *
+from .unit_pattern_table_pattern_repository import *
+from .unit_table_repository import *

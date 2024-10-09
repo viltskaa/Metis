@@ -11,3 +11,6 @@ from .search_similar_algorithm import *
 from .unit_pattern_service import *
 from .unit_service import *
 from .table_pattern_service import *
+from .table_service import *
+from .unit_pattern_table_pattern_service import *
+from .unit_table_service import *

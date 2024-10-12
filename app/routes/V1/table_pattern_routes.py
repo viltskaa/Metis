@@ -54,7 +54,7 @@ def add_table_pattern() -> Response:
 
 
 @table_pattern.route('/get', methods=['GET'])
-def get_tp_top_by_id() -> Response:
+def get_tp_by_id() -> Response:
     table_pattern_id = request.args.get('table_pattern_id', default=None, type=int)
     get_tp = TablePatternService.read_by_id(table_pattern_id)
 

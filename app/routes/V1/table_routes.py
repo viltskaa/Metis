@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 import flask
 from flask import Blueprint, Response, request, current_app, json
 
-from app.services import decode_image, save_image, TablePatternService, TableService
+from app.services import TableService
 
 tables: flask.blueprints.Blueprint = Blueprint('tables', __name__)
 

@@ -1,3 +1,4 @@
+import base64
 import flask
 from flask import Blueprint, Response, request, current_app, json
 
@@ -10,8 +11,36 @@ table_pattern: flask.blueprints.Blueprint = Blueprint('table_pattern', __name__)
 def get_all_table_pattern() -> Response:
     tps = TablePatternService.read_all()
 
+    for tp in tps:
+        try:
+            with open(tp.image_path, 'rb') as image_file:
+                encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+                tp.image_path = encoded_string
+        except Exception as e:
+            current_app.logger.error(f"Error loading image from {tp.image_path}: {e}")
+            tp.image_path = None
+
     return current_app.response_class(
-        response=json.dumps(tps),
+        response=json.dumps(tps, default=lambda o: o.__dict__),
+        status=200,
+        mimetype='application/json'
+    )
+
+@table_pattern.route('/get', methods=['GET'])
+def get_tp_by_id() -> Response:
+    table_pattern_id = request.args.get('table_pattern_id', default=None, type=int)
+    get_tp = TablePatternService.read_by_id(table_pattern_id)
+
+    try:
+        with open(get_tp.image_path, 'rb') as image_file:
+            encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+            get_tp.image_path = encoded_string
+    except Exception as e:
+        current_app.logger.error(f"Error loading image from {get_tp.image_path}: {e}")
+        get_tp.image_path = None
+
+    return current_app.response_class(
+        response=json.dumps(get_tp, default=lambda o: o.__dict__),
         status=200,
         mimetype='application/json'
     )
@@ -51,19 +80,6 @@ def add_table_pattern() -> Response:
             status=500,
             mimetype='application/json'
         )
-
-
-@table_pattern.route('/get', methods=['GET'])
-def get_tp_by_id() -> Response:
-    table_pattern_id = request.args.get('table_pattern_id', default=None, type=int)
-    get_tp = TablePatternService.read_by_id(table_pattern_id)
-
-    return current_app.response_class(
-        response=json.dumps(get_tp),
-        status=200,
-        mimetype='application/json'
-    )
-
 
 @table_pattern.route('/get_by_ttp_id', methods=['GET'])
 def read_by_ttp_id() -> Response:

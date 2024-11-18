@@ -7,6 +7,26 @@ import numpy as np
 
 from cv import ContourFinder
 
+def undistort_image(image):
+  camera_matrix = np.array([[1.67628927e+03, 0.00000000e+00, 9.32036340e+02],
+               [0.00000000e+00, 1.68409533e+03, 4.84948281e+02],
+               [0.00000000e+00, 0.00000000e+00, 1.00000000e+00]])
+  dist_coefs = np.array([-0.62830179, 0.79986763, -0.00491951, -0.00458237, -0.73075514])
+
+  try:
+    img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    h, w = img.shape[:2]
+    newcameramtx, roi = cv2.getOptimalNewCameraMatrix(camera_matrix, dist_coefs, (w, h), 1, (w, h))
+    dst = cv2.undistort(img, camera_matrix, dist_coefs, None, newcameramtx)
+    dst = cv2.cvtColor(dst, cv2.COLOR_RGB2BGR)
+
+    return dst
+  except cv2.error as e:
+    print(f"Ошибка обработки изображения: {e}")
+    return None
+  except Exception as e:
+    print(f"Произошла неизвестная ошибка: {e}")
+    return None
 
 def save_image(image):
     img_filename = f"processed_image_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}.jpg"
@@ -48,8 +68,10 @@ def process_image(image_base64):
     try:
         image = decode_image(image_base64)
 
+        undistorted_img = undistort_image(image)
+
         cf = ContourFinder(
-            image=image,
+            image=undistorted_img,
             blur=(7, 7),
             threshold=(160, 280),
             kernel_ksize=(15, 15),
@@ -72,8 +94,10 @@ def process_image_pattern(image_base64):
     try:
         image = decode_image(image_base64)
 
+        undistorted_img = undistort_image(image)
+
         cf = ContourFinder(
-            image=image,
+            image=undistorted_img,
             blur=(7, 7),
             threshold=(160, 280),
             kernel_ksize=(15, 15),
@@ -82,7 +106,7 @@ def process_image_pattern(image_base64):
         )
 
         img, (perimeter, width, height), colors = cf.produce(return_image=True)
-        path = save_image(image)
+        path = save_image(undistorted_img)
 
         perimeter = float(perimeter)
         width = float(width)
